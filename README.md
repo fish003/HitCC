@@ -2,7 +2,7 @@
 
 # HitCC
 
-## Complete reverse-engineering documentation of the full logic of Claude Code CLI Node.js version v2.1.84
+## Complete reverse-engineering documentation of the full logic of Claude Code CLI v2.1.197
 
 HitCC is not a source code repository. It is a documentation knowledge base for learning, analysis, and rewrite work.  
 The goal of this project is not to reconstruct the original file tree, but to recover Claude Code CLI's core runtime logic, module boundaries, configuration system, and surrounding ecosystem as faithfully as possible, so it can serve as a stable reference for a runnable alternative or a high-similarity rewrite.
@@ -13,30 +13,37 @@ This project is not affiliated with Anthropic PBC. The repository does not conta
 
 To obtain the Claude Code CLI package analyzed by this repository:
 ```sh
-npm pack @anthropic-ai/claude-code@2.1.84
+npm pack @anthropic-ai/claude-code@2.1.197
 ```
 
 The Python scripts under `recovery_tools/` can perform an initial round of cleanup on obfuscated or encrypted source code.
 
-This repository is based only on static analysis of Claude Code CLI v2.1.84 obtained through the method above. It does not include runtime dynamic analysis, and it did not use any Anthropic PBC network services, including LLM inference services.
+This repository is based on local analysis of Claude Code CLI v2.1.197 obtained through the method above and the extracted bundle from its native binary package. It does not rely on Anthropic PBC network services, including LLM inference services.
+
+## Version 2.1.197 Update
+
+The `docs/` knowledge base has been updated from the previous v2.1.84 baseline to Claude Code CLI v2.1.197. The current evidence model now reflects the newer distribution shape: a wrapper package, a platform native binary package, and a JavaScript bundle extracted from the native executable's `.bun` section.
+
+This update refreshes the runtime entry chain, command surface, background and remote capabilities, Plugin / Skill, TUI, control plane, telemetry, abuse/risk/refusal, tool execution, and `contextLayers` topics. Several evidence-heavy pages have also been split into parent navigation pages and child topic pages so the evidence can be followed by runtime path.
+
+It also adds a standalone topic page, [docs/standalone/abuse-control-and-telemetry.md](./docs/standalone/abuse-control-and-telemetry.md), for the client-side evidence around abuse/risk controls and telemetry. This page groups prompt markers, request identity, telemetry/logging channels, managed policy limits, execution gates, remote-control trust, gateway safeguards, and refusal/fallback handling into one cross-cutting view, while keeping private server-side enforcement outside the documented evidence boundary.
 
 The documentation content in this repository may be quite extensive. The current statistics for the `docs/` directory (the following data may not be updated in real time):
 
 ```
 TOTAL
-  Files: 81
-  Lines: 27170
-  Chars: 698707
-  Bytes: 953399
+  Files: 118
+  Lines: 32984
+  Chars: 990580
+  Bytes: 1319672
 ```
 
 
 ## What This Repository Provides
 
-- Structured reverse-engineering documentation for the main Claude Code CLI execution chain
-- Topic-oriented analysis from startup entry to the Agent Loop, Tool Use, prompt assembly, and session persistence
-- Split-out explanations of surrounding systems such as MCP, Plugin, Skill, TUI, Remote Persistence, and Bridge
-- Candidate architecture, known boundaries, and open questions for rewrite-oriented engineering
+- Structured reverse-engineering documentation based on the Claude Code CLI v2.1.197 local package and extracted bundle
+- A topic-oriented evidence base organized around runtime, execution, ecosystem, rewrite, and appendix materials
+- Boundary judgments, candidate architecture, and next evidence work for learning, analysis, and high-similarity rewrite efforts
 
 ## What This Repository Does Not Provide
 
@@ -47,59 +54,39 @@ TOTAL
 
 ## Documentation Coverage
 
-The current knowledge base is not organized by the original source tree. It is organized by runtime topics that can be reconstructed with stable confidence.  
-At present, the coverage of `docs/` can be understood by directory:
+The current knowledge base is not organized by the original source tree. It is organized by runtime topics that can be reconstructed with stable confidence. The main knowledge base lives under `docs/docs/`, with standalone topics under `docs/standalone/`. At present, coverage can be understood by directory:
 
 - `00-overview`
   - Scope boundaries, evidence sources, confidence terminology, and documentation maintenance conventions
 - `01-runtime`
-  - CLI entry, command tree, and runtime mode dispatch
-  - Session / Transcript persistence and recovery
-  - Input compilation pipeline, main Agent Loop, and compact branch
-  - Model adapter, provider selection, auth, stream handling, and remote transport
+  - CLI entry, command tree, runtime mode dispatch, and Session / Transcript persistence and recovery
+  - Input compilation pipeline, main Agent Loop, compact branch, model adapter, provider selection, and auth
+  - Stream events, request telemetry/refusal, remote transport, and request build boundaries
   - Two built-in network tools: `web-search` and `web-fetch`
-  - Telemetry, control plane, and non-LLM network paths
-  - Settings sources, paths, merging, caching, write-back, and key consumption surfaces
+  - API lifecycle, startup telemetry, 1P event logging, nonessential traffic switches, control plane, and non-LLM network paths
+  - Settings sources, paths, merging, caching, write-back, CLI injection schema, key consumers, and abuse/risk/refusal controls
 - `02-execution`
   - Tool execution core, concurrent execution, Hook runtime, Permission / Sandbox / Approval
-  - Instruction discovery, rules, prompt assembly, and context layering
-  - Non-main-thread prompt paths, attachment lifecycle, context modifiers, and tool-use context
+  - Instruction discovery, rules, prompt assembly, context layering, and request-level injection boundaries
+  - Non-main-thread prompt paths, compat agent definitions, attachment lifecycle, context runtime, and tool-use context
 - `03-ecosystem`
   - Resume, Fork, Sidechain, Subagent, and agent team
-  - Remote persistence, bridge, and Plan system
-  - MCP, Skill, Plugin, TUI, and their runtime interaction boundaries
+  - Remote persistence, bridge, bridge credentials, and Plan system
+  - MCP, Skill, Plugin, TUI, Monitor / Advisor, and their runtime interaction boundaries
 - `04-rewrite`
-  - Candidate layering, directory skeleton, open questions, and blocking judgments for rewrite engineering
+  - Candidate layering, directory skeleton, open-question tiers, blocking judgments, and next evidence work for rewrite engineering
 - `05-appendix`
-  - Unified terminology and evidence indexes such as the glossary and evidence map
+  - Unified terminology and evidence indexes such as the glossary, evidence map, topic maps, and key conclusion review
+- `standalone`
+  - Cross-directory topic notes outside the main navigation tree, used for evidence that spans runtime, execution, and ecosystem boundaries
+  - [Abuse Control and Telemetry](./docs/standalone/abuse-control-and-telemetry.md), covering prompt markers, request identity, telemetry/logging, policy/gates, remote-control trust, gateway safeguards, and refusal/fallback handling within the locally provable client-side boundary
 
 ## Current Conclusions
 
-Based on the current evidence boundary, this documentation set is already sufficient to support:
+For the current evidence boundary, rewrite feasibility, remaining unknowns, and next evidence work, see:
 
-- Reconstructing a runnable alternative
-- A modular high-similarity rewrite
-
-But it is still insufficient to promise:
-
-- Accurate reconstruction of the original project directory
-- Full reconstruction of private server-side black-box logic
-- 1:1 reproduction of all edge-case behaviors in the original product
-
-For more specific judgments, see:
-
-- [Scope, Evidence, and Conclusions](./docs/00-overview/01-scope-and-evidence.md)
-- [Rewrite Judgment, Blocking Open Questions, and Next Evidence Work](./docs/04-rewrite/02-open-questions-and-judgment.md)
-
-## Recommended Reading Order
-
-1. Start with [docs/00-overview/01-scope-and-evidence.md](./docs/00-overview/01-scope-and-evidence.md) to understand what this documentation already knows and what is still unknown.
-2. Then read [docs/01-runtime/01-product-cli-and-modes.md](./docs/01-runtime/01-product-cli-and-modes.md) and the other `01-runtime` pages to build a model of the product shape and the main runtime chain.
-3. Continue with `02-execution` to connect prompt handling, tool use, hooks, permissions, attachments, and related execution paths.
-4. Then move into `03-ecosystem` to complete the surrounding systems: MCP, Plugin, Skill, TUI, Remote, and Plan.
-5. Finally, read `04-rewrite` to connect the current knowledge boundary with practical engineering strategy.
-
-If you only want a quick entry point, start directly from [docs/00-overview/00-index.md](./docs/00-overview/00-index.md).
+- [Scope, Evidence, and Conclusions](./docs/docs/00-overview/01-scope-and-evidence.md)
+- [Rewrite Judgment, Open Question Tiers, and Next Evidence Work](./docs/docs/04-rewrite/02-open-questions-and-judgment.md)
 
 ## Maintenance Principles
 
@@ -113,22 +100,7 @@ This repository is maintained as a knowledge base rather than a single long-form
 
 Detailed conventions are described in:
 
-- [docs/00-overview/02-document-style-and-structure-conventions.md](./docs/00-overview/02-document-style-and-structure-conventions.md)
-
-## Suitable Use Cases
-
-This repository is more suitable for:
-
-- Studying the system structure and responsibility boundaries of Claude Code CLI
-- Providing architectural reference for self-built agentic coding shells
-- Defining stable knowledge boundaries for high-similarity rewrite work
-- Cross-checking where a feature sits inside the main runtime chain
-
-It is not suitable for:
-
-- Searching for original source code
-- Expecting a directly runnable replacement implementation
-- Pursuing full reconstruction of private server-side logic
+- [docs/docs/00-overview/02-document-style-and-structure-conventions.md](./docs/docs/00-overview/02-document-style-and-structure-conventions.md)
 
 ## License
 
