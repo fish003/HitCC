@@ -81,7 +81,7 @@
 - [../01-runtime/10-control-plane-api-and-auxiliary-services/05-github-telemetry-and-mcp-proxy.md](../01-runtime/10-control-plane-api-and-auxiliary-services/05-github-telemetry-and-mcp-proxy.md)
   - GitHub 接入、telemetry 旁路与 MCP proxy
 - [../01-runtime/11-non-llm-network-paths.md](../01-runtime/11-non-llm-network-paths.md)
-  - voice WebSocket、plugin install counts、GrowthBook、transcript share 与其他非模型出网链
+  - voice WebSocket、plugin install counts、GrowthBook、transcript share、共享 TLS / CA trust 层与其他非模型出网链
 - [../01-runtime/12-settings-and-configuration-system.md](../01-runtime/12-settings-and-configuration-system.md)
   - settings source、路径、优先级、缓存、写回、CLI 注入与 schema 轮廓
 - [../01-runtime/12-settings-and-configuration-system/01-source-model-and-paths.md](../01-runtime/12-settings-and-configuration-system/01-source-model-and-paths.md)

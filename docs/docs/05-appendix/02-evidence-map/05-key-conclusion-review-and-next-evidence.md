@@ -37,6 +37,7 @@
   - [../../03-ecosystem/02-remote-persistence-and-bridge.md](../../03-ecosystem/02-remote-persistence-and-bridge.md)
 - 相关边界：
   - `environment_secret / session_ingress_token / worker_epoch` 等服务端语义黑箱，统一回到 `01-runtime/10` 与 `03-ecosystem/02`
+  - shared TLS / CA trust 层当前已钉住默认 `bundled,system`、`CLAUDE_CODE_CERT_STORE` 与 `NODE_EXTRA_CA_CERTS` 行为，统一回到 `01-runtime/11`
   - telemetry/exporter、voice provider、stats 上游来源等剩余未知，统一回到对应 runtime 专题页
 
 ### 3. 是否还值得以“还原原源码”为主目标

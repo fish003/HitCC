@@ -91,6 +91,8 @@
 - `NODE_EXTRA_CA_CERTS` 与 `CLAUDE_CODE_CLIENT_CERT` 当前只记录 presence，不把证书路径或证书内容直接塞进 startup telemetry
 - `CLAUDE_CODE_CERT_STORE` 是例外：当前会记录配置值本身，因此重写或审计时不能把所有证书相关字段都概括成布尔 presence
 
+这些字段不是证书信任行为本身。实际 TLS / CA trust 解析在网络层完成：默认 `CLAUDE_CODE_CERT_STORE` 等价于 `bundled,system`，会合并 runtime bundled root CA 与 system CA；`NODE_EXTRA_CA_CERTS` 作为追加 CA。该运行时行为见 [../11-non-llm-network-paths.md](../11-non-llm-network-paths.md) 的“共享 TLS / CA trust 层”。
+
 ### `gh_auth_status` 的枚举值已经可以钉死
 
 `gh_auth_status` 对应 `ucr()`，当前本地实现非常具体，见 `package/preprocessed/cli.extracted.bundle.pretty.js`：

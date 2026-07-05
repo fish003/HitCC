@@ -2,7 +2,7 @@
 
 ## 定位
 
-本文是独立专题文档，不挂入 `recovery-docs/docs` 的现有导航体系。它把 `@anthropic-ai/claude-code@2.1.197` 本地 bundle 中可见的封控、风控、遥测、请求指纹、组织 policy、执行拦截、remote-control 设备信任、Gateway 防护与 refusal/fallback 协议面放在同一张图里。
+本文是独立专题文档，不挂入 `docs/docs` 的现有导航体系。它把 `@anthropic-ai/claude-code@2.1.197` 本地 bundle 中可见的封控、风控、遥测、请求指纹、组织 policy、执行拦截、remote-control 设备信任、Gateway 防护与 refusal/fallback 协议面放在同一张图里。
 
 证据主入口是当前发行版抽取出的：
 

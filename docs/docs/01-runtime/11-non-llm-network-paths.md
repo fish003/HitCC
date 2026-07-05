@@ -18,14 +18,15 @@
 ## 一句话结论
 
 Claude Code CLI 的“网络通信模块”不能只看模型请求。  
-当前本地 bundle 已能确认至少还有四组独立的外围出网链：
+当前本地 bundle 已能确认至少还有四组独立的外围出网链，以及一层共享 TLS / CA trust 基础层：
 
 - voice stream WebSocket
 - plugin install counts 拉取
 - GrowthBook remote eval / streaming refresh / experiment event logging
 - transcript share、remote transcript persistence、1P event logging failed-batch 缓存这组三类外围同步链
+- shared TLS / CA trust layer
 
-它们与 `/v1/messages` 主链共享认证或全局状态，但不属于同一条 data plane。
+这些外围出网链与 `/v1/messages` 主链共享认证或全局状态，但不属于同一条 data plane；TLS / CA trust 层则是它们共同使用的底层连接配置。
 
 ## 总体结构
 
@@ -51,6 +52,12 @@ non-LLM network paths
      -> remote transcript persistence
      -> 1P event logging failed-batch cache
      -> local-only UI stats store (boundary, not remote)
+
+  -> shared TLS / CA trust layer
+     -> bundled runtime root CAs
+     -> system CA store
+     -> NODE_EXTRA_CA_CERTS append
+     -> fetch / WebSocket / proxy / HTTPS agent consumers
 ```
 
 这里最重要的不是“还有几条 HTTP 请求”，而是：
@@ -450,12 +457,67 @@ appendEntry()
 
 两者不能合并称为同一种“usage 模块”。
 
-## 5. 与其他页面的分工
+## 5. 共享 TLS / CA trust 层
+
+### 结论
+
+当前 `2.1.197` 客户端不是单纯使用 OS 默认 CA，也不是只使用内置 CA。默认证书信任源是：
+
+```text
+bundled + system
+```
+
+对应实现是 `CLAUDE_CODE_CERT_STORE` 未设置时返回 `["bundled", "system"]`。随后运行时会把：
+
+- `require("tls").rootCertificates`
+- `tls.getCACertificates("system")`
+- `NODE_EXTRA_CA_CERTS` 指向文件里的额外 PEM 内容
+
+合并成 `ca`，再传给需要显式 TLS options 的网络调用。
+
+### 可配置入口
+
+`CLAUDE_CODE_CERT_STORE` 接受逗号分隔的 `bundled` / `system`：
+
+```text
+CLAUDE_CODE_CERT_STORE=bundled
+CLAUDE_CODE_CERT_STORE=system
+CLAUDE_CODE_CERT_STORE=bundled,system
+```
+
+无效项会被忽略；如果没有留下有效项，则回到默认 `bundled,system`。
+
+`--use-system-ca` 与 `--use-openssl-ca` 会把证书源收窄成 `system`。`NODE_EXTRA_CA_CERTS` 不替换主证书源，而是追加额外 CA。
+
+`SSL_CERT_FILE` 不是全局证书信任入口；当前只在 MCP agent-proxy fallback 读取 `HTTPS_PROXY` 时作为 fallback proxy CA bundle 使用。
+
+### 消费路径
+
+这层证书配置不是只用于 telemetry。当前可见消费面包括：
+
+- `kg(...)` 给 `fetch(...)` 注入 `tls.ca`
+- `JY()` / `Ytt()` 给 WebSocket、HTTP proxy、HTTPS agent 注入证书配置
+- proxy 路径的 `HttpsProxyAgent` / `EnvHttpProxyAgent`
+- gateway model discovery、MCP/IDE WebSocket、remote/peripheral fetch 等共享网络调用
+
+startup telemetry 里的 `has_node_extra_ca_certs`、`has_use_system_ca`、`has_use_openssl_ca`、`cert_store` 只是在记录配置侧信号；实际 TLS 行为由这一层运行时代码决定。
+
+### 证据点
+
+- 证书源解析与默认值：`package/preprocessed/cli.extracted.bundle.pretty.js:69457-69541`
+- `JY()` / `Ytt()` 注入 TLS options：`package/preprocessed/cli.extracted.bundle.pretty.js:69688-69699`
+- proxy / fetch options 消费：`package/preprocessed/cli.extracted.bundle.pretty.js:96360-96495`
+- `undici` global dispatcher proxy 消费：`package/preprocessed/cli.extracted.bundle.pretty.js:96556-96572`
+- gateway model discovery 使用 `kg(...)`：`package/preprocessed/cli.extracted.bundle.pretty.js:123252-123268`
+- MCP proxy fallback 的 `SSL_CERT_FILE` 边界：`package/preprocessed/cli.extracted.bundle.pretty.js:339837-339857`
+
+## 6. 与其他页面的分工
 
 本页负责回答：
 
 - 除模型主请求外，CLI 还会在哪些地方出网
 - 这些路径各自的 transport 是什么
+- 共享 TLS / CA trust 层如何影响这些网络调用
 - 哪些只是装饰性增强，哪些会影响交互能力
 - 哪些统计是远端同步，哪些只是本地状态
 
@@ -481,6 +543,7 @@ appendEntry()
 3. GrowthBook 是 remote eval + EventSource refresh + experiment event logging 的组合子系统。
 4. transcript share、remote transcript persistence、1P event logging failed-batch 缓存都属于 session/peripheral sync 链；其中 remote transcript persistence 更偏 transcript 一致性，而不是统计上传。
 5. `statsStore` / FPS / frame timing 是本地 UI stats，不应误记成远端 stats API。
+6. TLS 信任默认合并 bundled runtime CA 与 system CA，可通过 `CLAUDE_CODE_CERT_STORE` 收窄或组合，并可用 `NODE_EXTRA_CA_CERTS` 追加自定义 CA。
 
 ## 当前仍未完全钉死
 

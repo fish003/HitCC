@@ -31,10 +31,10 @@ npm pack @anthropic-ai/claude-code@2.1.197
 本仓库文档内容可能偏多，目前统计的 `docs/`（下列数据可能不会及时更新）：
 ```
 TOTAL
-  Files: 118
-  Lines: 32984
-  Chars: 990580
-  Bytes: 1319672
+  Files: 110
+  Lines: 32013
+  Chars: 961767
+  Bytes: 1288945
 ```
 
 ## 这个仓库提供什么

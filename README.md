@@ -32,10 +32,10 @@ The documentation content in this repository may be quite extensive. The current
 
 ```
 TOTAL
-  Files: 118
-  Lines: 32984
-  Chars: 990580
-  Bytes: 1319672
+  Files: 110
+  Lines: 32013
+  Chars: 961767
+  Bytes: 1288945
 ```
 
 
